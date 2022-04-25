@@ -7,7 +7,7 @@ from data.alchemy.parse_alchemy import (
 from data.alchemy.parseScone import getBatchesWithInit
 from data.alchemy.alchemy_artificial_generator import execute
 from transformers import BartTokenizerFast, T5TokenizerFast
-
+from transformers import MBart50TokenizerFast
 
 def convert_to_transformer_batches(
     dataset, tokenizer, batchsize, random=None, include_init_state=False,
@@ -30,10 +30,10 @@ def convert_to_transformer_batches(
 
         # make state targets
         if state_targets_type_split[0] == 'state':
-            state_targets = [decide_translate(' '.join(tgt), state_targets_type, domain, isinstance(tokenizer, BartTokenizerFast)) for tgt in state_targets]
+            state_targets = [decide_translate(' '.join(tgt), state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) for tgt in state_targets]
             state_targets = {'full_state': state_targets}
         elif state_targets_type_split[0] == 'init_state':
-            state_targets = [decide_translate(init_state, state_targets_type, domain, isinstance(tokenizer, BartTokenizerFast)) for init_state in init_states]
+            state_targets = [decide_translate(init_state, state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) for init_state in init_states]
             state_targets = {'full_state': state_targets}
         elif state_targets_type_split[0].startswith('single_beaker'):
             assert domain == 'alchemy'
@@ -46,8 +46,8 @@ def convert_to_transformer_batches(
             # {bn -> [`bn`-th beaker's state in example i (x # examples for beaker bn)]}
             state_targets = {int(beaker.split(':')[0]) - 1: [] for beaker in states[0].split(' ')}
             for state in states:
-                state_descr = decide_translate(state, state_targets_type, domain, isinstance(tokenizer, BartTokenizerFast))
-                if isinstance(tokenizer, BartTokenizerFast):
+                state_descr = decide_translate(state, state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast)))
+                if isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast):
                     beaker_states = state_descr.split(',')
                 else:
                     beaker_states = state_descr.split(', ')
@@ -70,7 +70,7 @@ def convert_to_transformer_batches(
                     string = init_states[i] + '. ' + string
                 elif include_init_state == "NL":
                     # translate to natural language
-                    string = translate_states_to_nl(init_states[i], domain, isinstance(tokenizer, BartTokenizerFast)) + '. ' + string
+                    string = translate_states_to_nl(init_states[i], domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) + '. ' + string
                 else:
                     assert not include_init_state
                 if append_last_state_to_context:

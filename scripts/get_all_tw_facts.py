@@ -7,6 +7,7 @@ import argparse
 from transformers import (
     BartConfig, BartTokenizerFast, BartForConditionalGeneration,
     T5Config, T5TokenizerFast, T5ForConditionalGeneration,
+    MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
 )
 from tqdm import tqdm
 import itertools
@@ -25,6 +26,11 @@ def main(data_dir, gamefile, out_file, state_model_path, state_model_arch, probe
         config_class = T5Config
         model_fp = 't5-base'
         tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+    elif state_model_arch == 'mbart':
+        model_class = MBartForConditionalGeneration
+        config_class = MBartConfig
+        model_fp = 'facebook/mbart-large-50'
+        tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
     else:
         raise NotImplementedError()
 
@@ -33,7 +39,7 @@ def main(data_dir, gamefile, out_file, state_model_path, state_model_arch, probe
     else:
         config = config_class.from_pretrained(model_fp, local_files_only=local_files_only)
         if state_model_layers is not None:
-            if state_model_arch == 'bart':
+            if state_model_arch == 'bart' or state_model_arch == 'mbart':
                 setattr(config, 'num_hidden_layers', state_model_layers)
                 setattr(config, 'encoder_layers', state_model_layers)
                 setattr(config, 'decoder_layers', state_model_layers)
@@ -87,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument('--gamefile', type=str, default='tw_data/simple_games')
     parser.add_argument('--out_file', type=str, default=None)
     parser.add_argument('--state_model_path', type=str, default=None, help='None, `pretrain`, or filepath to checkpoint')
-    parser.add_argument('--state_model_arch', type=str, choices=['t5', 'bart'])
+    parser.add_argument('--state_model_arch', type=str, choices=['t5', 'bart', 'mbart', 'mt5'])
     parser.add_argument('--probe_target', type=str, default='belief_facts_pair', choices=['belief_facts_pair', 'belief_facts_single'])
     parser.add_argument('--local_files_only', action='store_true', default=False)
     parser.add_argument('--override_num_layers', type=int, default=None)

@@ -5,6 +5,7 @@ from torch import nn
 import itertools
 from transformers.modeling_outputs import BaseModelOutput
 from transformers import BartTokenizerFast, T5TokenizerFast
+from transformers import MBart50TokenizerFast
 import sys
 import numpy as np
 import torch.nn.functional as F
@@ -55,10 +56,10 @@ def gen_all_beaker_states(domain, args, encoding="NL", tokenizer=None, device='c
         raw_filtered_all_beaker_states = []
         raw_beaker_state_to_idx = {}
         for bstate in all_beaker_states:
-            if translate_states_to_nl(bstate, domain, not tokenizer or isinstance(tokenizer, BartTokenizerFast)) not in nl_all_beaker_states:
-                nl_all_beaker_states.add(translate_states_to_nl(bstate, domain, not tokenizer or isinstance(tokenizer, BartTokenizerFast)))
+            if translate_states_to_nl(bstate, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast)) or isinstance(tokenizer, MBart50TokenizerFast)) not in nl_all_beaker_states:
+                nl_all_beaker_states.add(translate_states_to_nl(bstate, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))))
                 raw_all_beaker_states.add(encodeState(domain, bstate, device))
-                nl_state = decide_translate(bstate, args.probe_target, domain, not tokenizer or isinstance(tokenizer, BartTokenizerFast))
+                nl_state = decide_translate(bstate, args.probe_target, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast)))
                 nl_beaker_state_to_idx[nl_state] = len(nl_filtered_all_beaker_states)
                 nl_filtered_all_beaker_states.append(nl_state)
                 raw_state = encodeState(domain, bstate, device)

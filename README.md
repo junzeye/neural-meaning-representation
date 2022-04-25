@@ -46,18 +46,18 @@ tar -xzvf tw_data.tar.gz
 
 
 ## LM Training
-To train a BART or T5 model on Alchemy data
+To train a (m)BART or T5 model on Alchemy data
 ```bash
 python scripts/train_alchemy.py \
-    --arch [t5|bart] [--no_pretrain] \
+    --arch [t5|bart|mbart] [--no_pretrain] \
     [--synthetic] --encode_init_state NL
 ```
 Saves model checkpoints under `sconeModels/*`.
 
-To train a BART or T5 model on Textworld data
+To train a (m)BART or T5 model on Textworld data
 ```bash
 python scripts/train_textworld.py \
-    --arch [t5/bart] [--no_pretrain] \
+    --arch [t5|bart|mbart] [--no_pretrain] \
     --data tw_data/simple_traces --gamefile tw_games/simple_games
 ```
 Saves model checkpoints nder `twModels/*`.
@@ -68,11 +68,11 @@ Saves model checkpoints nder `twModels/*`.
 The main probe command is as follows:
 ```bash
 python scripts/probe_alchemy.py \
-    --arch [bart|t5] --lm_save_path <path_to_lm_checkpoint> [--no_pretrain] \
+    --arch [bart|t5|mbart] --lm_save_path <path_to_lm_checkpoint> [--no_pretrain] \
     --encode_init_state NL --nonsynthetic \
     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
     --probe_type linear --probe_agg_method avg \
-    --encode_tgt_state NL.[bart|t5] --tgt_agg_method avg \
+    --encode_tgt_state NL.[bart|t5|mbart] --tgt_agg_method avg \
     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
 ```
 For evaluation, add `--eval_only --probe_save_path <path_to_probe_checkpoint>`. This will save model predictions to a `.jsonl` file under the same directory as the probe checkpoint.
@@ -88,7 +88,7 @@ Saves probe checkpoints under `probe_models_alchemy/*`.
 Intervention experiment results follow from running the script:
 ```bash
 python scripts/intervention.py \
-    --arch [bart|t5] \
+    --arch [bart|t5|mbart] \
     --encode_init_state NL \
     --create_type drain_1 \
     --lm_save_path <path_to_lm_checkpoint>
@@ -100,7 +100,7 @@ Begin by creating the full set of encoded proposition representations
 ```bash
 python scripts/get_all_tw_facts.py \
     --data tw_data/simple_traces --gamefile tw_data/simple_games \
-    --state_model_arch [bart|t5] \
+    --state_model_arch [bart|t5|mbart] \
     --probe_target belief_facts_pair \
     --state_model_path [None|pretrain|<path_to_lm_checkpoint>] \
     --out_file <path_to_prop_encodings>
@@ -109,8 +109,8 @@ python scripts/get_all_tw_facts.py \
 Run the probe with
 ```bash
 python scripts/probe_textworld.py \
-    --arch [bart|t5] --data tw_data/simple_traces --gamefile tw_data/simple_games \
-    --probe_target final.full_belief_facts_pair --encode_tgt_state NL.[bart|t5] \
+    --arch [bart|t5|mbart] --data tw_data/simple_traces --gamefile tw_data/simple_games \
+    --probe_target final.full_belief_facts_pair --encode_tgt_state NL.[bart|t5|mbart] \
     --localizer_type belief_facts_pair_[first|last|all] --probe_type 3linear_classify \
     --probe_agg_method avg --tgt_agg_method avg \
     --lm_save_path <path_to_lm_checkpoint> [--no_pretrain] \
@@ -134,7 +134,7 @@ Saves probe checkpoints under `probe_models_textworld/*`.
 Print full metrics (state EM, entity EM, subdivided by relations vs. propositions, etc.) using `scripts/print_metrics.py`.
 ```bash
 python scripts/print_metrics.py \
-    --arch [bart|t5] --domain [alchemy|textworld] \
+    --arch [bart|t5|mbart] --domain [alchemy|textworld] \
     --pred_files <path_to_model_predictions_1>,<path_to_model_predictions_2>,<path_to_model_predictions_3>,... \
     [--use_remap_domain --remap_fn <path_to_remap_model_predictions>] \
     [--single_side_probe]

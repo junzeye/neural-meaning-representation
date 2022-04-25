@@ -9,6 +9,7 @@ import textworld
 from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
+from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
 from transformers import AdamW
 
 import argparse
@@ -42,7 +43,7 @@ from itertools import chain, combinations
 DEBUG = False
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5'])
+parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5', 'mbart', 'mt5'])
 parser.add_argument('--override_num_layers', type=int, default=None)
 parser.add_argument('--batchsize', type=int, default=16)
 parser.add_argument('--eval_batchsize', type=int, default=128)
@@ -61,7 +62,7 @@ parser.add_argument('--metric', type=str, choices=['em', 'loss'], help='which me
 parser.add_argument('--probe_save_path', type=str, default=None)
 parser.add_argument('--probe_layer', type=int, default=-1, help="which layer of the model to probe")
 parser.add_argument('--probe_type', type=str, choices=['3linear_classify', 'linear_classify', 'linear_retrieve', 'decoder'], default='decoder')
-parser.add_argument('--encode_tgt_state', type=str, default=False, choices=[False, 'NL.bart', 'NL.t5'], help="how to encode the state before probing")
+parser.add_argument('--encode_tgt_state', type=str, default=False, choices=[False, 'NL.bart', 'NL.t5', 'NL.mbart', 'NL.mt5'], help="how to encode the state before probing")
 parser.add_argument('--train_data_size', type=int, default=4000)
 parser.add_argument('--tgt_agg_method', type=str, choices=['sum', 'avg', 'first', 'last', 'lin_attn', 'ffn_attn', 'self_attn'], default='avg', help="how to aggregate across tokens of target, if `encode_tgt_state` is set True")
 parser.add_argument('--probe_agg_method', type=str, choices=[None, 'sum', 'avg', 'first', 'last', 'lin_attn', 'ffn_attn', 'self_attn'], default=None, help="how to aggregate across tokens")

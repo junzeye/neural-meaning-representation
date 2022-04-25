@@ -4,12 +4,16 @@ import torch
 from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
+
+from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+
 from torch import nn
 import numpy as np
 import random
 
 from transformers import AdamW
-from transformers.models.bart.modeling_bart import BartAttention as Attention
+from transformers.models.bart.modeling_bart import BartAttention
+from transformers.models.mbart.modeling_mbart import MBartAttention
 from transformers.modeling_outputs import BaseModelOutput, ModelOutput
 from transformers import PreTrainedModel
 import os
@@ -34,6 +38,11 @@ def get_lang_model(arch, lm_save_path, pretrained=True, local_files_only=False, 
         config_class = T5Config
         model_fp = 't5-base'
         tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+    elif arch == 'mbart':
+        model_class = MBartForConditionalGeneration
+        config_class = MBartConfig
+        model_fp = 'facebook/mbart-large-50'
+        tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
     else:
         raise NotImplementedError()
 
@@ -55,6 +64,10 @@ def get_lang_model(arch, lm_save_path, pretrained=True, local_files_only=False, 
             elif arch == 't5':
                 setattr(config, 'num_layers', n_layers)
                 setattr(config, 'num_decoder_layers', n_layers)
+            elif arch == 'mbart':
+                setattr(config, 'num_hidden_layers', n_layers)
+                setattr(config, 'encoder_layers', n_layers)
+                setattr(config, 'decoder_layers', n_layers)
         model = model_class(config)
         if lm_save_path: model.load_state_dict(model_dict)
     encoder = model.get_encoder()
@@ -87,6 +100,15 @@ def get_state_encoder(arch, encoder=None, config=None, pretrained=True, freeze_p
                 setattr(config, 'num_layers', n_layers)
                 setattr(config, 'num_decoder_layers', n_layers)
                 state_model = T5ForConditionalGeneration(config)
+        if arch == 'mbart':
+            if pretrained:
+                state_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+            else:
+                config = MBartConfig.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+                setattr(config, 'num_hidden_layers', n_layers)
+                setattr(config, 'encoder_layers', n_layers)
+                setattr(config, 'decoder_layers', n_layers)
+                state_model = MBartForConditionalGeneration(config)
         encoder = state_model.get_encoder()
     if arch == "mlp":
         input_dim = encodeState('alchemy', '1:', device).size(0)
@@ -124,6 +146,12 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
             else:
                 config = T5Config.from_pretrained('t5-base', local_files_only=local_files_only)
                 probe_model = T5ForConditionalGeneration(config)
+        if arch =='mbart':
+            if not load_probe:
+                probe_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+            else:
+                config = MBartConfig.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+                probe_model = MBartForConditionalGeneration(config)
         else:
             raise NotImplementedError()
     elif probe_type.startswith('linear'):
@@ -154,10 +182,16 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
                 nn.Linear(lang_model.config.d_model, probe_attn_dim),
             )
         elif localizer_type.startswith('self_'):
-            agg_layer = Attention(
-                lang_model.config.d_model,
-                lang_model.config.encoder_attention_heads, 
-            )
+            if arch == 'mbart':
+                agg_layer = MBartAttention(
+                    lang_model.config.d_model,
+                    lang_model.config.encoder_attention_heads, 
+                )
+            else:
+                agg_layer = BartAttention(
+                    lang_model.config.d_model,
+                    lang_model.config.encoder_attention_heads, 
+                )
         else: assert False
         probe_model.agg_layer = agg_layer
         probe_model.target_agg_layer = agg_layer
@@ -175,10 +209,16 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
                 nn.Linear(input_dim, probe_attn_dim),
             )
         elif tgt_agg_method.startswith('self_'):
-            target_agg_layer = Attention(
-                input_dim,
-                lang_model.config.encoder_attention_heads, 
-            )
+            if arch == 'mbart':
+                target_agg_layer = MBartAttention(
+                    input_dim,
+                    lang_model.config.encoder_attention_heads, 
+                )
+            else:
+                target_agg_layer = BartAttention(
+                    input_dim,
+                    lang_model.config.encoder_attention_heads, 
+                )
         else: assert False
         probe_model.target_agg_layer = target_agg_layer
 
@@ -187,6 +227,7 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
         if probe_type == 'decoder':
             if arch == 't5': probe_model.encoder = lang_model.get_encoder()
             elif arch == 'bart': probe_model.model.encoder = lang_model.get_encoder()
+            elif arch == 'mbart': probe_model.model.encoder = lang_model.get_encoder()
     probe_model.to(device)
     return probe_model
 

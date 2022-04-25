@@ -2,6 +2,8 @@ import torch
 from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
+from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+
 from torch import nn
 import numpy as np
 
@@ -29,7 +31,7 @@ STATE_ENC_DIM = NUM_POSITIONS * NUM_COLORS * 2
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart'])
+parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'mbart', 'mt5'])
 parser.add_argument('--device', type=str, default='cuda')
 parser.add_argument('--lr', type=float, default=1e-5)
 parser.add_argument('--eval_only', default=False, action='store_true')
@@ -69,6 +71,11 @@ elif args.arch == 't5':
     config_class = T5Config
     model_fp = 't5-base'
     tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+elif args.arch == 'mbart':
+    model_class = MBartForConditionalGeneration
+    config_class = MBartConfig
+    model_fp = 'facebook/mbart-large-50'
+    tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
 else:
     raise NotImplementedError()
 

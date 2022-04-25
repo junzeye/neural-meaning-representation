@@ -8,8 +8,9 @@ import textworld
 from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
+from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
 from transformers import AdamW
-from transformers.models.bart.modeling_bart import BartEncoder
+from transformers.models.bart.modeling_bart import BartEncoder # this seems unused -alkin
 
 import argparse
 import os
@@ -58,7 +59,7 @@ def eval_checkpoint(
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5'])
+parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5', 'mbart', 'mt5'])
 parser.add_argument('--batchsize', type=int, default=4)
 parser.add_argument('--eval_batchsize', type=int, default=32)
 parser.add_argument('--data', type=str, required=True)
@@ -107,6 +108,11 @@ elif arch == 't5':
     config_class = T5Config
     model_fp = 't5-base'
     tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+elif arch == 'mbart':
+    model_class = MBartForConditionalGeneration
+    config_class = MBartConfig
+    model_fp = 'facebook/mbart-large-50'
+    tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
 else:
     raise NotImplementedError()
 

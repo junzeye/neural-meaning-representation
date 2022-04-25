@@ -26,7 +26,7 @@ import torch.nn.functional as F
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--eval_batchsize', type=int, default=128)
-parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart'])
+parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'mbart', 'mt5'])
 parser.add_argument('--encode_init_state', type=str, default='NL', choices=[False, 'raw', 'NL'])
 parser.add_argument('--device', type=str, default='cuda')
 parser.add_argument('--seed', type=int, default=45)
