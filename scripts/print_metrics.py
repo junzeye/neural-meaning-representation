@@ -198,7 +198,9 @@ if args.domain == 'textworld':
             tokenizer = T5TokenizerFast.from_pretrained('t5-base', local_files_only=local_files_only)
         else:
             raise NotImplementedError()
-        gamefile = f'../state-probes-TW/tw_games/training_tw-{data_type}'
+        # alkin - changed the directory path
+        gamefile = f'tw_data/simple_games'
+        # gamefile = f'../state-probes-TW/tw_games/training_tw-{data_type}'
         for fn in glob.glob(os.path.join(gamefile, 'train/*.ulx')):
             env = textworld.start(fn)
             game_state = env.reset()
@@ -207,7 +209,9 @@ if args.domain == 'textworld':
             break
 
         # get gts
-        dataset = TWDataset(f'../state-probes-TW/tw_games/training_traces_tw-{data_type}', tokenizer, 'dev', max_seq_len=512, max_data_size=500)
+        # alkin - changed the directory path
+        dataset = TWDataset(f'tw_data/simple_traces', tokenizer, 'dev', max_seq_len=512, max_data_size=500)
+        # dataset = TWDataset(f'../state-probes-TW/tw_games/training_traces_tw-{data_type}', tokenizer, 'dev', max_seq_len=512, max_data_size=500)
         ctxt_to_gt_state = {}
         for entry in dataset:
             if not control_input:
