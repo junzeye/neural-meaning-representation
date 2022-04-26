@@ -5,7 +5,7 @@ from torch import nn
 import itertools
 from transformers.modeling_outputs import BaseModelOutput
 from transformers import BartTokenizerFast, T5TokenizerFast
-from transformers import MBart50TokenizerFast
+from transformers import MBart50TokenizerFast, MT5TokenizerFast
 import sys
 import numpy as np
 import torch.nn.functional as F

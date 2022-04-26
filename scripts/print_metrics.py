@@ -9,7 +9,7 @@ from data.textworld.utils import ENTITIES_SIMPLE, ROOMS_SIMPLE, EntitySet, get_r
 from data.alchemy.utils import translate_nl_to_states
 
 from transformers import BartTokenizerFast, T5TokenizerFast
-from transformers import MBart50TokenizerFast
+from transformers import MBart50TokenizerFast, MT5TokenizerFast
 import textworld
 import warnings
 import itertools
@@ -199,6 +199,8 @@ if args.domain == 'textworld':
             tokenizer = T5TokenizerFast.from_pretrained('t5-base', local_files_only=local_files_only)
         elif arch == 'mbart':
             tokenizer = MBart50TokenizerFast.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+        elif arch == 'mt5':
+            tokenizer = MT5TokenizerFast.from_pretrained('mt5-base', local_files_only=local_files_only)
         else:
             raise NotImplementedError()
         # alkin - changed the directory path

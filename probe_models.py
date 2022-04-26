@@ -6,6 +6,7 @@ from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
 
 from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
 
 from torch import nn
 import numpy as np
@@ -43,6 +44,11 @@ def get_lang_model(arch, lm_save_path, pretrained=True, local_files_only=False, 
         config_class = MBartConfig
         model_fp = 'facebook/mbart-large-50'
         tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+    elif arch == 'mt5':
+        model_class = MT5ForConditionalGeneration
+        config_class = MT5Config
+        model_fp = 'mt5-base'
+        tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
     else:
         raise NotImplementedError()
 
@@ -68,6 +74,9 @@ def get_lang_model(arch, lm_save_path, pretrained=True, local_files_only=False, 
                 setattr(config, 'num_hidden_layers', n_layers)
                 setattr(config, 'encoder_layers', n_layers)
                 setattr(config, 'decoder_layers', n_layers)
+            elif arch == 'mt5':
+                setattr(config, 'num_layers', n_layers)
+                setattr(config, 'num_decoder_layers', n_layers)
         model = model_class(config)
         if lm_save_path: model.load_state_dict(model_dict)
     encoder = model.get_encoder()
@@ -100,7 +109,7 @@ def get_state_encoder(arch, encoder=None, config=None, pretrained=True, freeze_p
                 setattr(config, 'num_layers', n_layers)
                 setattr(config, 'num_decoder_layers', n_layers)
                 state_model = T5ForConditionalGeneration(config)
-        if arch == 'mbart':
+        elif arch == 'mbart':
             if pretrained:
                 state_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
             else:
@@ -109,6 +118,16 @@ def get_state_encoder(arch, encoder=None, config=None, pretrained=True, freeze_p
                 setattr(config, 'encoder_layers', n_layers)
                 setattr(config, 'decoder_layers', n_layers)
                 state_model = MBartForConditionalGeneration(config)
+        elif arch =='mt5':
+            state_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+            if pretrained:
+                state_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+            else:
+                config = MT5Config.from_pretrained('mt5-base', local_files_only=local_files_only)
+                setattr(config, 'num_layers', n_layers)
+                setattr(config, 'num_decoder_layers', n_layers)
+                state_model = MT5ForConditionalGeneration(config)
+        
         encoder = state_model.get_encoder()
     if arch == "mlp":
         input_dim = encodeState('alchemy', '1:', device).size(0)
@@ -146,12 +165,18 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
             else:
                 config = T5Config.from_pretrained('t5-base', local_files_only=local_files_only)
                 probe_model = T5ForConditionalGeneration(config)
-        if arch =='mbart':
+        elif arch =='mbart':
             if not load_probe:
                 probe_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
             else:
                 config = MBartConfig.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
                 probe_model = MBartForConditionalGeneration(config)
+        elif arch =='mt5':
+            if not load_probe:
+                probe_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+            else:
+                config = MT5Config.from_pretrained('mt5-base', local_files_only=local_files_only)
+                probe_model = MT5ForConditionalGeneration(config)
         else:
             raise NotImplementedError()
     elif probe_type.startswith('linear'):
@@ -228,6 +253,7 @@ def get_probe_model(probe_type, localizer_type, probe_attn_dim, arch, lang_model
             if arch == 't5': probe_model.encoder = lang_model.get_encoder()
             elif arch == 'bart': probe_model.model.encoder = lang_model.get_encoder()
             elif arch == 'mbart': probe_model.model.encoder = lang_model.get_encoder()
+            elif arch == 'mt5': probe_model.encoder = lang_model.get_encoder()
     probe_model.to(device)
     return probe_model
 

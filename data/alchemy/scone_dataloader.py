@@ -7,7 +7,7 @@ from data.alchemy.parse_alchemy import (
 from data.alchemy.parseScone import getBatchesWithInit
 from data.alchemy.alchemy_artificial_generator import execute
 from transformers import BartTokenizerFast, T5TokenizerFast
-from transformers import MBart50TokenizerFast
+from transformers import MBart50TokenizerFast, MT5TokenizerFast
 
 def convert_to_transformer_batches(
     dataset, tokenizer, batchsize, random=None, include_init_state=False,
@@ -61,7 +61,7 @@ def convert_to_transformer_batches(
             if no_context:
                 string = ''
             else:
-                if isinstance(tokenizer, T5TokenizerFast):
+                if (isinstance(tokenizer, T5TokenizerFast) or isinstance(tokenizer, MT5TokenizerFast)):
                     string = ' '.join(inp).replace(' \n ', '. ')
                     if '  ' in string: string = string.replace('  ', ' first ')
                 else:
@@ -83,7 +83,7 @@ def convert_to_transformer_batches(
         lang_targets_new = []
         for tgt in lang_targets:
             tgt = ' '.join(tgt) + '.'
-            if isinstance(tokenizer, T5TokenizerFast) and '  ' in tgt:
+            if (isinstance(tokenizer, T5TokenizerFast) or isinstance(tokenizer, MT5TokenizerFast)) and '  ' in tgt:
                 tgt = tgt.replace('  ', ' first ')
             lang_targets_new.append(tgt)
         lang_targets = lang_targets_new

@@ -9,6 +9,7 @@ from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
 from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
 from transformers import AdamW
 from transformers.models.bart.modeling_bart import BartEncoder # this seems unused -alkin
 
@@ -113,6 +114,11 @@ elif arch == 'mbart':
     config_class = MBartConfig
     model_fp = 'facebook/mbart-large-50'
     tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+elif arch == 'mt5':
+    model_class = MT5ForConditionalGeneration
+    config_class = MT5Config
+    model_fp = 'mt5-base'
+    tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
 else:
     raise NotImplementedError()
 

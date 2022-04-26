@@ -7,7 +7,8 @@ import argparse
 from transformers import (
     BartConfig, BartTokenizerFast, BartForConditionalGeneration,
     T5Config, T5TokenizerFast, T5ForConditionalGeneration,
-    MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+    MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration,
+    MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
 )
 from tqdm import tqdm
 import itertools
@@ -31,6 +32,11 @@ def main(data_dir, gamefile, out_file, state_model_path, state_model_arch, probe
         config_class = MBartConfig
         model_fp = 'facebook/mbart-large-50'
         tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+    elif state_model_arch == 'mt5':
+        model_class = MT5ForConditionalGeneration
+        config_class = MT5Config
+        model_fp = 'mt5-base'
+        tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
     else:
         raise NotImplementedError()
 
@@ -43,7 +49,7 @@ def main(data_dir, gamefile, out_file, state_model_path, state_model_arch, probe
                 setattr(config, 'num_hidden_layers', state_model_layers)
                 setattr(config, 'encoder_layers', state_model_layers)
                 setattr(config, 'decoder_layers', state_model_layers)
-            elif state_model_arch == 't5':
+            elif state_model_arch == 't5' or state_model_arch == 'mt5':
                 setattr(config, 'num_layers', state_model_layers)
                 setattr(config, 'num_decoder_layers', state_model_layers)
         state_model = model_class(config)

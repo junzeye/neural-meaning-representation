@@ -10,6 +10,7 @@ from transformers import BartConfig, T5Config
 from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
 from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
 from transformers import AdamW
 
 import argparse
