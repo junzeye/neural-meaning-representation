@@ -4,6 +4,8 @@ from transformers import BartTokenizerFast, T5TokenizerFast
 from transformers import BartForConditionalGeneration, T5ForConditionalGeneration
 from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
 from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
+import re
+
 
 from torch import nn
 import numpy as np
@@ -18,6 +20,9 @@ import argparse
 from metrics.alchemy_metrics import check_val_consistency
 from data.alchemy.parseScone import loadData, getBatches, getBatchesWithInit
 from data.alchemy.scone_dataloader import convert_to_transformer_batches
+
+# create regex expression for model ablations
+REG_T5 = re.compile("t5_[0-9]+")
 
 NUM_POSITIONS = 10
 POSITION_INDICES = range(NUM_POSITIONS)
@@ -46,6 +51,8 @@ parser.add_argument('--no_pretrain', action='store_true', default=False)
 parser.add_argument('--patience', type=int, default=10)
 parser.add_argument('--save_path', type=str, default=None)
 parser.add_argument('--local_files_only', action='store_true', default=False)
+parser.add_argument('--n_layers', type=int, default=6)
+parser.add_argument('--n_heads', type=int, default=8)
 args = parser.parse_args()
 
 pretrained = not args.no_pretrain
@@ -72,6 +79,11 @@ elif args.arch == 't5':
     config_class = T5Config
     model_fp = 't5-base'
     tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+elif bool(re.match(REG_T5, args.arch)): # Note that load_model would be False in this case
+    model_class = T5ForConditionalGeneration
+    config_class = T5Config
+    model_fp = 't5-base'
+    tokenizer = T5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
 elif args.arch == 'mbart':
     model_class = MBartForConditionalGeneration
     config_class = MBartConfig
@@ -87,8 +99,13 @@ else:
 
 if not load_model: print("Creating LM model")
 if not load_model and pretrained:
-    model = model_class.from_pretrained(model_fp, local_files_only=args.local_files_only)
+    if bool(re.match(REG_T5, args.arch)):
+        model = model_class.from_pretrained(model_fp, local_files_only=args.local_files_only,
+                                            num_heads = args.n_heads, num_layers = args.n_layers)
+    else:
+        model = model_class.from_pretrained(model_fp, local_files_only=args.local_files_only)
 else:
+    # Tony - might want to change here
     config = config_class.from_pretrained(model_fp, local_files_only=args.local_files_only)
     model = model_class(config)
 if load_model:
