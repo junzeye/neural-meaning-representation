@@ -37,7 +37,7 @@ STATE_ENC_DIM = NUM_POSITIONS * NUM_COLORS * 2
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'mbart', 'mt5'])
+parser.add_argument('--arch', type=str, default='bart')
 parser.add_argument('--device', type=str, default='cuda')
 parser.add_argument('--lr', type=float, default=1e-5)
 parser.add_argument('--eval_only', default=False, action='store_true')
