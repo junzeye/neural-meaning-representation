@@ -71,9 +71,6 @@ parser.add_argument('--localizer_type', type=str, default='all',
     help="which encoded tokens of the input to probe; `offset` gives how much ahead the encoded representation should be; `R` gives the offset in tokens, relative to 'beaker'")
 parser.add_argument('--probe_max_tokens', type=int, default=None, help="how many tokens (max) to feed into probe, set None to use all tokens")
 parser.add_argument('--eval_only', action='store_true')
-parser.add_argument('--m_lr', type=float, default=1e-5)
-parser.add_argument('--m_batchsize', type=int, default=16)
-parser.add_argument('--m_patient', type=int, default=10)
 
 args = parser.parse_args()
 
