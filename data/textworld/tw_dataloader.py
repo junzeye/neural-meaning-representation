@@ -415,6 +415,7 @@ class TWFullDataLoader(DataLoader):
         game_ids = [item['filenames'].split('_')[0] for item in batch]
         contexts = [item['contexts'] for item in batch]
         context_tokens = self.tokenizer(contexts, return_tensors='pt', padding=True, truncation=False)
+        print("Debug - context_tokens: ", context_tokens['attention_mask'])
         items_to_keep = context_tokens['attention_mask'].sum(1) <= self.tokenizer.model_max_length
         if not items_to_keep.any():
             return None, None, None, None, game_ids, None
