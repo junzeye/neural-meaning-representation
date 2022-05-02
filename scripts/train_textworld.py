@@ -119,6 +119,7 @@ elif arch == 'mt5':
     config_class = MT5Config
     model_fp = 'mt5-base'
     tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only, model_max_length=512)
+    # tony - added model_max_length=512 to overwrite the very-large-integer in the original model
 else:
     raise NotImplementedError()
 
