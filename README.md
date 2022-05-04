@@ -17,6 +17,7 @@ This is the repository for our final project of COS484: Natural Language Process
     - `./data/alchemy/scone_dataloader.py`: Some formatting for batch preparation is needed, hence handled in a T5-like manner.
     -  `./scripts/*`: See `./probe_models.py`
     -  As mT5 on TextWorld was initially not working due to the PyTorch bug with message "Overflow when unpacking long", we ended up limiting the `model_max_length` of the `MT5TokenizerFast` to be 512 across the board (refer to [this commit](https://github.com/junzeye/nlp-final-project/commit/680cee8a1b9d5d3c1a3fd5b908c66262279e3001)). 
+5) Since the original `scripts/train_alchemy.py` file was written without accommodations for hyperparameter optimization, saving multiple LM checkpoints of the same model would cause naming collison. To avoid overwriting LM checkpoints of models with different hyperparameters, we made changes to line 55-56 of the file and resolved this problem (refer to [this commit](https://github.com/junzeye/nlp-final-project/commit/9f48201e49d7d4030219984ec01a9a35978f06aa)).
 
 ## Preliminaries
 Create and set up a conda environment as follows:
