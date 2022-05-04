@@ -1,7 +1,22 @@
 # Implicit Representations of Meaning in Neural Language Models
 
-1) Because GPU jobs in the Adroit Cluster do not have Internet access, we cloned pretrained transformer models from [Huggingface](https://huggingface.co/) into the local hard drive. When calling `scripts/train_alchemy.py` and `scripts/train_textworld.py` from bash scripts to finetune a NLM, we included an extra flag `--local_files_only` in the argument to toggle on the offline training mode. This is something not included by the original codebase, but necessary for our code to run.
-2) Initially, we encountered the Pytorch bug "error when unpacking long" when we tried to train the semantic probe for the `mt5` model. We were able to resolve this error after noticing that we need to add an extra parameter `model_max_length=512` when we initialized the tokenizer for `mt5` in `probe_models.py` (line 51).
+## Alkin Kaz, Tony Ye, Benjamin Chan
+
+This is the repository for our final project of COS484: Natural Language Processing (Spring 2022). This repo has been forked from the original [repo](https://github.com/belindal/state-probes) that the authors provide. The code we have written on top of the preexisting codebase can be seen in the `./blames` directory, but summarized here for your convenience:
+
+1) `./slurm_scripts`: Since we ran our jobs in [Adroit cluster](https://researchcomputing.princeton.edu/systems/adroit), considerable effort was spent on writing SLURM jobs to be executed in the cluster. The provided scripts are not a complete list but constitutes the necessary majority that covers enough ground to more easily replicate for the multilingual models (m-models) later on.
+2) Because GPU jobs in the Adroit Cluster do not have Internet access, we cloned pretrained transformer models from [Huggingface](https://huggingface.co/) into the local hard drive. When calling `scripts/train_alchemy.py` and `scripts/train_textworld.py` from bash scripts to finetune a NLM, we included an extra flag `--local_files_only` in the argument to toggle on the offline training mode. This is something not included by the original codebase, but necessary for our code to run.
+3) Adding mBART (refer to [this commit](https://github.com/junzeye/nlp-final-project/commit/8295f4ae870bc9d2227fd27cc84d6a487790e906)):
+    - `./probe_models.py`: mBAR-related `transformers` functions are added and in the logical statements `arch=='mbart'` is introduced as another possible scenario.
+    - `./data/alchemy/scone_dataloader.py`: When the architecture is BART-like, we would like to add spaces in the Natural Language (NL) representation of the Alchemy states (similar but different correction is needed for T5-like architecture as well).
+    - `./data/alchemy/utils.py`: See `./data/alchemy/scone_dataloader.py`.
+    - `./scripts/*`: See `./probe_models.py`
+    - **Known Bugs:** The tokenizer creates more tokens than the `./data/alchemy/scone_dataloader.py` can handle, hence mBart on Alchemy is yet to work.
+4) Adding mT5 (refer to [this commit](https://github.com/junzeye/nlp-final-project/commit/a4a2e2b9e034432ad5e802c52d6060ff8ba2ba70)):
+    - `./probe_models.py`: mT5-related `transformers` functions are added and in the logical statements `arch=='mt5'` is introduced as another possible scenario.
+    - `./data/alchemy/scone_dataloader.py`: Some formatting for batch preparation is needed, hence handled in a T5-like manner.
+    -  `./scripts/*`: See `./probe_models.py`
+    -  As mT5 on TextWorld was initially not working due to the PyTorch bug with message "Overflow when unpacking long", we ended up limiting the `model_max_length` of the `MT5TokenizerFast` to be 512 across the board (refer to [this commit](https://github.com/junzeye/nlp-final-project/commit/680cee8a1b9d5d3c1a3fd5b908c66262279e3001)). 
 
 ## Preliminaries
 Create and set up a conda environment as follows:
