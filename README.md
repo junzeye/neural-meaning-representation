@@ -1,4 +1,8 @@
 # Implicit Representations of Meaning in Neural Language Models
+
+1) Because GPU jobs in the Adroit Cluster do not have Internet access, we cloned pretrained transformer models from [Huggingface](https://huggingface.co/) into the local hard drive. When calling `scripts/train_alchemy.py` and `scripts/train_textworld.py` from bash scripts to finetune a NLM, we included an extra flag `--local_files_only` in the argument to toggle on the offline training mode. This is something not included by the original codebase, but necessary for our code to run.
+2) Initially, we encountered the Pytorch bug "error when unpacking long" when we tried to train the semantic probe for the `mt5` model. We were able to resolve this error after noticing that we need to add an extra parameter `model_max_length=512` when we initialized the tokenizer for `mt5` in `probe_models.py` (line 51).
+
 ## Preliminaries
 Create and set up a conda environment as follows:
 ```bash
