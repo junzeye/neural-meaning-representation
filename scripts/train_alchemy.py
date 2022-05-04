@@ -81,7 +81,7 @@ elif args.arch == 'mt5':
     model_class = MT5ForConditionalGeneration
     config_class = MT5Config
     model_fp = 'mt5-base'
-    tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+    tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only, model_max_length=512)
 else:
     raise NotImplementedError()
 

@@ -200,7 +200,7 @@ if args.domain == 'textworld':
         elif arch == 'mbart':
             tokenizer = MBart50TokenizerFast.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
         elif arch == 'mt5':
-            tokenizer = MT5TokenizerFast.from_pretrained('mt5-base', local_files_only=local_files_only)
+            tokenizer = MT5TokenizerFast.from_pretrained('mt5-base', local_files_only=local_files_only, model_max_length=512)
         else:
             raise NotImplementedError()
         # alkin - changed the directory path
