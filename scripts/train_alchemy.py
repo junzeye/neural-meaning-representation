@@ -52,7 +52,8 @@ pretrained = not args.no_pretrain
 # make save path
 os.makedirs('sconeModels', exist_ok=True)
 if not args.save_path:
-    savePath = f'sconeModels/{"synth" if args.synthetic else "real"}_{"pre" if pretrained else "nopre"}{args.arch}_encInitState={args.encode_init_state}.p'
+    savePath = f'sconeModels/{"synth" if args.synthetic else "real"}_{"pre" if pretrained else "nopre"}' \
+               f'{args.arch}_encInitState={args.encode_init_state}_lr={args.lr}_btch={args.batchsize}_patience={args.patience}.p'
 else: savePath = args.save_path
 random.seed(args.seed)
 
