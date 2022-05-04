@@ -1,0 +1,1446 @@
+5ceadce9 .gitignore (Alkin Kaz      2022-05-02 22:35:17 -0400  3) *.slurm
+5ceadce9 .gitignore (Alkin Kaz      2022-05-02 22:35:17 -0400  4) *.sh
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  49) To train a (m)BART or (m)T5 model on Alchemy data
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  52)     --arch [t5|bart|mbart|mt5] [--no_pretrain] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  57) To train a (m)BART or (m)T5 model on Textworld data
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  60)     --arch [t5|bart|mbart|mt5] [--no_pretrain] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  71)     --arch [bart|t5|mbart|mt5] --lm_save_path <path_to_lm_checkpoint> [--no_pretrain] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  75)     --encode_tgt_state NL.[bart|t5|mbart|mt5] --tgt_agg_method avg \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400  91)     --arch [bart|t5|mbart|mt5] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400 103)     --state_model_arch [bart|t5|mbart|mt5] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400 112)     --arch [bart|t5|mbart|mt5] --data tw_data/simple_traces --gamefile tw_data/simple_games \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400 113)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.[bart|t5|mbart|mt5] \
+a4a2e2b9 README.md (Alkin Kaz      2022-04-26 11:57:58 -0400 137)     --arch [bart|t5|mbart|mt5] --domain [alchemy|textworld] \
+a4a2e2b9 data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-26 11:57:58 -0400  10) from transformers import MBart50TokenizerFast, MT5TokenizerFast
+8295f4ae data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-25 18:12:17 -0400  33)             state_targets = [decide_translate(' '.join(tgt), state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) for tgt in state_targets]
+8295f4ae data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-25 18:12:17 -0400  36)             state_targets = [decide_translate(init_state, state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) for init_state in init_states]
+8295f4ae data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-25 18:12:17 -0400  49)                 state_descr = decide_translate(state, state_targets_type, domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast)))
+8295f4ae data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-25 18:12:17 -0400  50)                 if isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast):
+a4a2e2b9 data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-26 11:57:58 -0400  64)                 if (isinstance(tokenizer, T5TokenizerFast) or isinstance(tokenizer, MT5TokenizerFast)):
+8295f4ae data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-25 18:12:17 -0400  73)                     string = translate_states_to_nl(init_states[i], domain, (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))) + '. ' + string
+a4a2e2b9 data/alchemy/scone_dataloader.py (Alkin Kaz      2022-04-26 11:57:58 -0400  86)             if (isinstance(tokenizer, T5TokenizerFast) or isinstance(tokenizer, MT5TokenizerFast)) and '  ' in tgt:
+a4a2e2b9 data/alchemy/utils.py (Alkin Kaz      2022-04-26 11:57:58 -0400   8) from transformers import MBart50TokenizerFast, MT5TokenizerFast
+8295f4ae data/alchemy/utils.py (Alkin Kaz      2022-04-25 18:12:17 -0400  59)             if translate_states_to_nl(bstate, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast)) or isinstance(tokenizer, MBart50TokenizerFast)) not in nl_all_beaker_states:
+8295f4ae data/alchemy/utils.py (Alkin Kaz      2022-04-25 18:12:17 -0400  60)                 nl_all_beaker_states.add(translate_states_to_nl(bstate, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast))))
+8295f4ae data/alchemy/utils.py (Alkin Kaz      2022-04-25 18:12:17 -0400  62)                 nl_state = decide_translate(bstate, args.probe_target, domain, not tokenizer or (isinstance(tokenizer, BartTokenizerFast) or isinstance(tokenizer, MBart50TokenizerFast)))
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400   7) 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400   8) from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400   9) from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  10) 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  16) from transformers.models.bart.modeling_bart import BartAttention
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  17) from transformers.models.mbart.modeling_mbart import MBartAttention
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  42)     elif arch == 'mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  43)         model_class = MBartForConditionalGeneration
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  44)         config_class = MBartConfig
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  45)         model_fp = 'facebook/mbart-large-50'
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  46)         tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  47)     elif arch == 'mt5':
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  48)         model_class = MT5ForConditionalGeneration
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  49)         config_class = MT5Config
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  50)         model_fp = 'mt5-base'
+680cee8a probe_models.py (Alkin Kaz      2022-05-04 02:14:39 -0400  51)         tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only, model_max_length=512)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  73)             elif arch == 'mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  74)                 setattr(config, 'num_hidden_layers', n_layers)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  75)                 setattr(config, 'encoder_layers', n_layers)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400  76)                 setattr(config, 'decoder_layers', n_layers)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  77)             elif arch == 'mt5':
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  78)                 setattr(config, 'num_layers', n_layers)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400  79)                 setattr(config, 'num_decoder_layers', n_layers)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 112)         elif arch == 'mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 113)             if pretrained:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 114)                 state_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 115)             else:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 116)                 config = MBartConfig.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 117)                 setattr(config, 'num_hidden_layers', n_layers)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 118)                 setattr(config, 'encoder_layers', n_layers)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 119)                 setattr(config, 'decoder_layers', n_layers)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 120)                 state_model = MBartForConditionalGeneration(config)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 121)         elif arch =='mt5':
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 122)             state_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 123)             if pretrained:
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 124)                 state_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 125)             else:
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 126)                 config = MT5Config.from_pretrained('mt5-base', local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 127)                 setattr(config, 'num_layers', n_layers)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 128)                 setattr(config, 'num_decoder_layers', n_layers)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 129)                 state_model = MT5ForConditionalGeneration(config)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 130)         
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 168)         elif arch =='mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 169)             if not load_probe:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 170)                 probe_model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 171)             else:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 172)                 config = MBartConfig.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 173)                 probe_model = MBartForConditionalGeneration(config)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 174)         elif arch =='mt5':
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 175)             if not load_probe:
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 176)                 probe_model = MT5ForConditionalGeneration.from_pretrained('mt5-base', local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 177)             else:
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 178)                 config = MT5Config.from_pretrained('mt5-base', local_files_only=local_files_only)
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 179)                 probe_model = MT5ForConditionalGeneration(config)
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 210)             if arch == 'mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 211)                 agg_layer = MBartAttention(
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 212)                     lang_model.config.d_model,
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 213)                     lang_model.config.encoder_attention_heads, 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 214)                 )
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 215)             else:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 216)                 agg_layer = BartAttention(
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 217)                     lang_model.config.d_model,
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 218)                     lang_model.config.encoder_attention_heads, 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 219)                 )
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 237)             if arch == 'mbart':
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 238)                 target_agg_layer = MBartAttention(
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 239)                     input_dim,
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 240)                     lang_model.config.encoder_attention_heads, 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 241)                 )
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 242)             else:
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 243)                 target_agg_layer = BartAttention(
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 244)                     input_dim,
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 245)                     lang_model.config.encoder_attention_heads, 
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 246)                 )
+8295f4ae probe_models.py (Alkin Kaz      2022-04-25 18:12:17 -0400 255)             elif arch == 'mbart': probe_model.model.encoder = lang_model.get_encoder()
+a4a2e2b9 probe_models.py (Alkin Kaz      2022-04-26 11:57:58 -0400 256)             elif arch == 'mt5': probe_model.encoder = lang_model.get_encoder()
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  10)     MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration,
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  11)     MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  30)     elif state_model_arch == 'mbart':
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  31)         model_class = MBartForConditionalGeneration
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  32)         config_class = MBartConfig
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  33)         model_fp = 'facebook/mbart-large-50'
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  34)         tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only)
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  35)     elif state_model_arch == 'mt5':
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  36)         model_class = MT5ForConditionalGeneration
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  37)         config_class = MT5Config
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  38)         model_fp = 'mt5-base'
+680cee8a scripts/get_all_tw_facts.py (Alkin Kaz      2022-05-04 02:14:39 -0400  39)         tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=local_files_only, model_max_length=512)
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400  48)             if state_model_arch == 'bart' or state_model_arch == 'mbart':
+a4a2e2b9 scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-26 11:57:58 -0400  52)             elif state_model_arch == 't5' or state_model_arch == 'mt5':
+8295f4ae scripts/get_all_tw_facts.py (Alkin Kaz      2022-04-25 18:12:17 -0400 102)     parser.add_argument('--state_model_arch', type=str, choices=['t5', 'bart', 'mbart', 'mt5'])
+8295f4ae scripts/intervention.py (Alkin Kaz      2022-04-25 18:12:17 -0400  29) parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'mbart', 'mt5'])
+a4a2e2b9 scripts/print_metrics.py (Alkin Kaz      2022-04-26 11:57:58 -0400  12) from transformers import MBart50TokenizerFast, MT5TokenizerFast
+8295f4ae scripts/print_metrics.py (Alkin Kaz      2022-04-25 18:12:17 -0400 103) parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'mbart', 'mt5'])
+8295f4ae scripts/print_metrics.py (Alkin Kaz      2022-04-25 18:12:17 -0400 200)         elif arch == 'mbart':
+8295f4ae scripts/print_metrics.py (Alkin Kaz      2022-04-25 18:12:17 -0400 201)             tokenizer = MBart50TokenizerFast.from_pretrained('facebook/mbart-large-50', local_files_only=local_files_only)
+a4a2e2b9 scripts/print_metrics.py (Alkin Kaz      2022-04-26 11:57:58 -0400 202)         elif arch == 'mt5':
+680cee8a scripts/print_metrics.py (Alkin Kaz      2022-05-04 02:14:39 -0400 203)             tokenizer = MT5TokenizerFast.from_pretrained('mt5-base', local_files_only=local_files_only, model_max_length=512)
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 206)         # alkin - changed the directory path
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 207)         gamefile = f'tw_data/simple_games'
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 208)         # gamefile = f'../state-probes-TW/tw_games/training_tw-{data_type}'
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 217)         # alkin - changed the directory path
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 218)         dataset = TWDataset(f'tw_data/simple_traces', tokenizer, 'dev', max_seq_len=512, max_data_size=500)
+51b3e4db scripts/print_metrics.py (Alkin Kaz      2022-04-25 11:24:19 -0400 219)         # dataset = TWDataset(f'../state-probes-TW/tw_games/training_traces_tw-{data_type}', tokenizer, 'dev', max_seq_len=512, max_data_size=500)
+8295f4ae scripts/probe_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  43) parser.add_argument('--arch', type=str, default='bart', choices=['t5', 'bart', 'bert', 'mbart', 'mt5'])
+8295f4ae scripts/probe_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  44) parser.add_argument('--encode_tgt_state', type=str, default=False, choices=[False, 'raw.mlp', 'NL.bart', 'NL.t5', 'NL.mbart', 'NL.mt5'], help="how to encode the state before probing")
+8295f4ae scripts/probe_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  12) from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+a4a2e2b9 scripts/probe_textworld.py (Alkin Kaz      2022-04-26 11:57:58 -0400  13) from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
+8295f4ae scripts/probe_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  47) parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5', 'mbart', 'mt5'])
+8295f4ae scripts/probe_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  66) parser.add_argument('--encode_tgt_state', type=str, default=False, choices=[False, 'NL.bart', 'NL.t5', 'NL.mbart', 'NL.mt5'], help="how to encode the state before probing")
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400   5) from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+a4a2e2b9 scripts/train_alchemy.py (Alkin Kaz      2022-04-26 11:57:58 -0400   6) from transformers import MT5Config, MT5TokenizerFast, MT5ForConditionalGeneration
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400   7) 
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  76) elif args.arch == 'mbart':
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  77)     model_class = MBartForConditionalGeneration
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  78)     config_class = MBartConfig
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  79)     model_fp = 'facebook/mbart-large-50'
+8295f4ae scripts/train_alchemy.py (Alkin Kaz      2022-04-25 18:12:17 -0400  80)     tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+a4a2e2b9 scripts/train_alchemy.py (Alkin Kaz      2022-04-26 11:57:58 -0400  81) elif args.arch == 'mt5':
+a4a2e2b9 scripts/train_alchemy.py (Alkin Kaz      2022-04-26 11:57:58 -0400  82)     model_class = MT5ForConditionalGeneration
+a4a2e2b9 scripts/train_alchemy.py (Alkin Kaz      2022-04-26 11:57:58 -0400  83)     config_class = MT5Config
+a4a2e2b9 scripts/train_alchemy.py (Alkin Kaz      2022-04-26 11:57:58 -0400  84)     model_fp = 'mt5-base'
+680cee8a scripts/train_alchemy.py (Alkin Kaz      2022-05-04 02:14:39 -0400  85)     tokenizer = MT5TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only, model_max_length=512)
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  11) from transformers import MBartConfig, MBart50TokenizerFast, MBartForConditionalGeneration
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  14) from transformers.models.bart.modeling_bart import BartEncoder # this seems unused -alkin
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400  63) parser.add_argument('--arch', type=str, default='bart', choices=['bart', 't5', 'mbart', 'mt5'])
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400 112) elif arch == 'mbart':
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400 113)     model_class = MBartForConditionalGeneration
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400 114)     config_class = MBartConfig
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400 115)     model_fp = 'facebook/mbart-large-50'
+8295f4ae scripts/train_textworld.py (Alkin Kaz      2022-04-25 18:12:17 -0400 116)     tokenizer = MBart50TokenizerFast.from_pretrained(model_fp, local_files_only=args.local_files_only)
+a4a2e2b9 scripts/train_textworld.py (Alkin Kaz      2022-04-26 11:57:58 -0400 117) elif arch == 'mt5':
+a4a2e2b9 scripts/train_textworld.py (Alkin Kaz      2022-04-26 11:57:58 -0400 118)     model_class = MT5ForConditionalGeneration
+a4a2e2b9 scripts/train_textworld.py (Alkin Kaz      2022-04-26 11:57:58 -0400 119)     config_class = MT5Config
+a4a2e2b9 scripts/train_textworld.py (Alkin Kaz      2022-04-26 11:57:58 -0400 120)     model_fp = 'mt5-base'
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_alch # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --domain alchemy \
+9bc9f582 slurm_scripts/bart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --pred_files 'probe_models_alchemy/encoded_NL.bartlinear_single_beaker_init_full_avgavg_real_prebart_encInitState=NL_l-1_single_beaker_final.NL_real.jsonl' \
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_alch_noft # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --domain alchemy \
+9bc9f582 slurm_scripts/bart_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --pred_files 'probe_models_alchemy/noft_encoded_NL.bartlinear_single_beaker_init_full_avgavg_bart_initstate_NL_l-1_single_beaker_final.NL_real.jsonl'
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_alch_noft_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_alch_nopre # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --domain alchemy \
+9bc9f582 slurm_scripts/bart_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_alchemy/encoded_NL.bartlinear_single_beaker_init_full_avgavg_real_noprebart_encInitState=NL_l-1_single_beaker_final.NL_real.jsonl' \
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_alch_nopre_nosyn # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) python scripts/train_alchemy.py \
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)        --arch bart --local_files_only --no_pretrain \
+9bc9f582 slurm_scripts/bart_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)        --encode_init_state NL
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_alch_nopre_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --lm_save_path 'sconeModels/real_noprebart_encInitState=NL.p' --no_pretrain \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_alch_pretrained_no_syn # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) python scripts/train_alchemy.py \
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)        --arch bart --local_files_only \
+9bc9f582 slurm_scripts/bart_alch_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)        --encode_init_state NL
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_alch_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:02:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --lm_save_path 'sconeModels/real_prebart_encInitState=NL.p' \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_get_tw_facts # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=16G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=01:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/get_all_tw_facts.py \
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --state_model_arch bart \
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --probe_target belief_facts_pair \
+9bc9f582 slurm_scripts/bart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --state_model_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_tw_first # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --domain textworld \
+9bc9f582 slurm_scripts/bart_tw_first_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_first_avgavg_final.full_belief_facts_pair_4000_seed42.jsonl'
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_first_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --localizer_type belief_facts_pair_first --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 30)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_first_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 31)     --eval_batchsize 256 --batchsize 32
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_tw_last # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --domain textworld \
+9bc9f582 slurm_scripts/bart_tw_last_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_last_avgavg_final.full_belief_facts_pair_4000_seed42.jsonl'
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_last_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --localizer_type belief_facts_pair_last --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 30)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_last_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 31)     --eval_batchsize 256 --batchsize 32
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_tw # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --domain textworld \
+9bc9f582 slurm_scripts/bart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.jsonl'
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_nopre_get_tw_facts # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=16G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=01:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/get_all_tw_facts.py \
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --state_model_arch bart \
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target belief_facts_pair \
+9bc9f582 slurm_scripts/bart_tw_nopre_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --state_model_path 'twModels/nonpre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_bart_tw_nopre # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --domain textworld \
+9bc9f582 slurm_scripts/bart_tw_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_textworld/nonpre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.jsonl'
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_nopre_nosyn # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=03:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/train_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --local_files_only --no_pretrain \
+9bc9f582 slurm_scripts/bart_tw_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --data tw_data/simple_traces --gamefile tw_games/simple_games
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_nopre_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --lm_save_path 'twModels/nonpre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_nonpre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_batchsize 256 --batchsize 32
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_pretrained_no_syn # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=03:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) python scripts/train_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --arch bart --local_files_only \
+9bc9f582 slurm_scripts/bart_tw_pretrained_no_syn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --data tw_data/simple_traces --gamefile tw_games/simple_games
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=bart_tw_probe # create a short name for your job
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 30)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/bart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 31)     --eval_batchsize 256 --batchsize 32
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_alch_noft # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_bart_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'noft_encoded_NL.bartlinear_single_beaker_init_full_avgavg_bart_initstate_NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_alch_nopre # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch bart --lm_save_path 'sconeModels/real_noprebart_encInitState=NL.p' \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_bart_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_alchemy/encoded_NL.bartlinear_single_beaker_init_full_avgavg_real_noprebart_encInitState=NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_alch_probe # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch bart --lm_save_path 'sconeModels/real_prebart_encInitState=NL.p' \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --encode_tgt_state NL.bart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 30)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_bart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 31)     --eval_only --probe_save_path 'probe_models_alchemy/encoded_NL.bartlinear_single_beaker_init_full_avgavg_real_prebart_encInitState=NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_tw_probe # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) module purge
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) 
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --eval_batchsize 256 --batchsize 32 \
+9bc9f582 slurm_scripts/eval_bart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.p'
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_tw_first # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) module purge
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) 
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --localizer_type belief_facts_pair_first --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --eval_batchsize 256 --batchsize 32 \
+9bc9f582 slurm_scripts/eval_bart_tw_first.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_first_avgavg_final.full_belief_facts_pair_4000_seed42.p'
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_tw_last # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) module purge
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) 
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --localizer_type belief_facts_pair_last --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --lm_save_path 'twModels/pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_pre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --eval_batchsize 256 --batchsize 32 \
+9bc9f582 slurm_scripts/eval_bart_tw_last.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_textworld/pre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_last_avgavg_final.full_belief_facts_pair_4000_seed42.p'
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_bart_tw_nopre # create a short name for your job
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:20:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) module purge
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) 
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch bart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.bart \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --lm_save_path 'twModels/nonpre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_bart_state_model_nonpre_bart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --eval_batchsize 256 --batchsize 32 \
+9bc9f582 slurm_scripts/eval_bart_tw_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_textworld/nonpre_bart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.p'
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_mbart_alch # create a short name for your job
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mbart --lm_save_path 'sconeModels/real_prembart_encInitState=NL.p' \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.mbart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_mbart_alch.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_alchemy/encoded_NL.mbartlinear_single_beaker_init_full_avgavg_real_prembart_encInitState=NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_mbart_tw # create a short name for your job
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) module purge
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) 
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch mbart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.mbart \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --lm_save_path 'twModels/pre_mbart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_mbart_state_model_pre_mbart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --eval_batchsize 256 --batchsize 32 \
+9bc9f582 slurm_scripts/eval_mbart_tw.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_textworld/pre_mbart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.p'
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_t5_alch_noft # create a short name for your job
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.t5 --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_t5_alch_noft.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'noft_encoded_NL.t5linear_single_beaker_init_full_avgavg_t5_initstate_NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=eval_t5_alch_nopre # create a short name for your job
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:15:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 --lm_save_path 'sconeModels/real_nopret5_encInitState=NL.p' \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.t5 --tgt_agg_method avg \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4 \
+9bc9f582 slurm_scripts/eval_t5_alch_nopre.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_only --probe_save_path 'probe_models_alchemy/encoded_NL.t5linear_single_beaker_init_full_avgavg_real_nopret5_encInitState=NL_l-1_single_beaker_final.NL_real.pState'
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_mbart_alch # create a short name for your job
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mbart --domain alchemy \
+9bc9f582 slurm_scripts/mbart_alch_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_alchemy/encoded_NL.mbartlinear_single_beaker_init_full_avgavg_real_prembart_encInitState=NL_l-1_single_beaker_final.NL_real.jsonl' \
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mbart_alch_pretr_nosyn # create a short name for your job
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/train_alchemy.py \
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)        --arch mbart --local_files_only \
+9bc9f582 slurm_scripts/mbart_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)        --encode_init_state NL
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mbart_alch_probe # create a short name for your job
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:02:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mbart --lm_save_path 'sconeModels/real_prembart_encInitState=NL.p' \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.mbart --tgt_agg_method avg \
+9bc9f582 slurm_scripts/mbart_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mbart_get_tw_facts # create a short name for your job
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=16G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=01:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/get_all_tw_facts.py \
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --state_model_arch mbart \
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target belief_facts_pair \
+9bc9f582 slurm_scripts/mbart_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --state_model_path 'twModels/pre_mbart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_mbart_tw # create a short name for your job
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mbart --domain textworld \
+9bc9f582 slurm_scripts/mbart_tw_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_textworld/pre_mbart_lr1e-05_simple_traces_seed42/enctgt_3linear_classify_belief_facts_pair_all_avgavg_final.full_belief_facts_pair_4000_seed42.jsonl'
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mbart_tw_pretr # create a short name for your job
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=03:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/train_textworld.py \
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch mbart --local_files_only \
+9bc9f582 slurm_scripts/mbart_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --data tw_data/simple_traces --gamefile tw_games/simple_games
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mbart_tw_probe # create a short name for your job
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_textworld.py \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mbart --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --probe_target final.full_belief_facts_pair --encode_tgt_state NL.mbart \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --localizer_type belief_facts_pair_all --probe_type 3linear_classify \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_agg_method avg --tgt_agg_method avg \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --lm_save_path 'twModels/pre_mbart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --ents_to_states_file 'tw_data/simple_traces/entities_to_facts/belief_facts_pair_mbart_state_model_pre_mbart_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/mbart_tw_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 29)     --eval_batchsize 256 --batchsize 32
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mt5_alch_pretr_nosyn # create a short name for your job
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/train_alchemy.py \
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)        --arch mt5 --local_files_only \
+9bc9f582 slurm_scripts/mt5_alch_pretr_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)        --encode_init_state NL
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mt5_alch_probe # create a short name for your job
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch mt5 --lm_save_path 'sconeModels/real_premt5_encInitState=NL.p' \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.mt5 --tgt_agg_method avg \
+9bc9f582 slurm_scripts/mt5_alch_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mt5_get_tw_facts # create a short name for your job
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=16G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=01:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/get_all_tw_facts.py \
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --data tw_data/simple_traces --gamefile tw_data/simple_games \
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --state_model_arch mt5 \
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target belief_facts_pair \
+9bc9f582 slurm_scripts/mt5_tw_facts.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --state_model_path 'twModels/pre_mt5_lr1e-05_simple_traces_seed42.p' \
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=mt5_tw_pretr # create a short name for your job
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=03:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) python scripts/train_textworld.py \
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22)     --arch mt5 --local_files_only \
+9bc9f582 slurm_scripts/mt5_tw_pretr.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --data tw_data/simple_traces --gamefile tw_games/simple_games
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_t5_alch_noft # create a short name for your job
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) 
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --arch t5 --domain alchemy \
+9bc9f582 slurm_scripts/t5_alch_noft_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --pred_files 'probe_models_alchemy/noft_encoded_NL.t5linear_single_beaker_init_full_avgavg_t5_initstate_NL_l-1_single_beaker_final.NL_real.jsonl'
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=t5_alch_noft_probe # create a short name for your job
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.t5 --tgt_agg_method avg \
+9bc9f582 slurm_scripts/t5_alch_noft_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=metrics_t5_alch_nopre # create a short name for your job
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=00:10:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/print_metrics.py \
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 --domain alchemy \
+9bc9f582 slurm_scripts/t5_alch_nopre_metrics.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --pred_files 'probe_models_alchemy/encoded_NL.t5linear_single_beaker_init_full_avgavg_real_nopret5_encInitState=NL_l-1_single_beaker_final.NL_real.jsonl' \
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=t5_alch_nopre_nosyn # create a short name for your job
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --constraint=v100
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) 
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --time=06:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) 
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) 
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) module purge
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23) python scripts/train_alchemy.py \
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)        --arch t5 --local_files_only --no_pretrain \
+9bc9f582 slurm_scripts/t5_alch_nopre_nosyn.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)        --encode_init_state NL
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=t5_alch_nopre_probe # create a short name for your job
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=09:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/probe_alchemy.py \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 --lm_save_path 'sconeModels/real_nopret5_encInitState=NL.p' --no_pretrain \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --encode_init_state NL --nonsynthetic \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 25)     --probe_target single_beaker_final.NL --localizer_type single_beaker_init_full \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 26)     --probe_type linear --probe_agg_method avg \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 27)     --encode_tgt_state NL.t5 --tgt_agg_method avg \
+9bc9f582 slurm_scripts/t5_alch_nopre_probe.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 28)     --batchsize 128 --eval_batchsize 1024 --lr 1e-4
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  1) #!/bin/bash
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  2) #SBATCH --job-name=t5_tw_nopre_fine # create a short name for your job
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  3) #SBATCH --nodes=1                # node count
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  4) #SBATCH --ntasks=1               # total number of tasks across all nodes
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  5) #SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  6) #SBATCH --gres=gpu:1             # number of gpus per node
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  7) #SBATCH --mem-per-cpu=8G         # memory per cpu-core (4G is default)
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  8) 
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400  9) #SBATCH --time=03:00:00          # total run time limit (HH:MM:SS)
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 10) #SBATCH --mail-type=begin        # send email when job begins
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 11) #SBATCH --mail-type=end          # send email when job ends
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 12) #SBATCH --mail-type=fail         # send email if job fails
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 13) #SBATCH --mail-user=akaz@princeton.edu
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 14) 
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 15) 
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 16) module purge
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 17) module load anaconda3/2021.11
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 18) conda activate /scratch/network/akaz/conda/nlp_final
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 19) export PYTHONPATH=.
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 20) export TOKENIZERS_PARALLELISM=true
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 21) 
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 22) python scripts/train_textworld.py \
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 23)     --arch t5 --local_files_only --no_pretrain \
+9bc9f582 slurm_scripts/t5_tw_nopre_fine.slurm (Alkin Kaz 2022-04-26 18:52:26 -0400 24)     --data tw_data/simple_traces --gamefile tw_games/simple_games
