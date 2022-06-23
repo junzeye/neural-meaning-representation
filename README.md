@@ -2,6 +2,8 @@
 
 ## Alkin Kaz, Tony Ye, Benjamin Chan
 
+![Project Poster](poster.png)
+
 This is the repository for our final project of COS484: Natural Language Processing (Spring 2022). For our project, we replicated experiments from the 2021 ACL paper [Implicit Representations of Meaning in Neural Language Models](https://aclanthology.org/2021.acl-long.143/) by Li et al. and contributed our original ablation experiments. This repo has been forked from the original [repo](https://github.com/belindal/state-probes) that the authors provide. The code we have written on top of the preexisting codebase can be seen in the `./blames` directory, but summarized here for your convenience:
 
 1) `./slurm_scripts`: Since we ran our jobs in [Adroit cluster](https://researchcomputing.princeton.edu/systems/adroit), considerable effort was spent on writing SLURM jobs to be executed in the cluster. The provided scripts are not a complete list but constitutes the necessary majority that covers enough ground to more easily replicate for the multilingual models (m-models) later on.
